@@ -52,8 +52,12 @@ export default function EventCard({ event, onJoin, actionLabel = "View Event" })
         <Button 
           className="w-full" 
           onClick={() => onJoin(event)}
+          disabled={actionLabel === "Join Event" && (event.status === "LIVE" || event.status === "ENDED")}
+          variant={actionLabel === "Join Event" && (event.status === "LIVE" || event.status === "ENDED") ? "secondary" : "default"}
         >
-          {actionLabel}
+          {actionLabel === "Join Event" && event.status === "LIVE" 
+            ? "Registration Closed" 
+            : actionLabel}
         </Button>
       </CardFooter>
     </Card>

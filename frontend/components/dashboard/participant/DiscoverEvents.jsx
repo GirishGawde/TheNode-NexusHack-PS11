@@ -6,10 +6,11 @@ import api from "@/lib/axios"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 
-export default function DiscoverEvents() {
+export default function DiscoverEvents({ registeredEventIds = [] }) {
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+  const [showAll, setShowAll] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
 
   useEffect(() => {
@@ -22,7 +23,7 @@ export default function DiscoverEvents() {
       const { data, error } = await supabase
         .from("events")
         .select("*")
-        .eq("status", "PUBLISHED")
+        .in("status", ["PUBLISHED", "ONGOING", "LIVE"])
         .order("created_at", { ascending: false })
       
       if (error) throw error
@@ -39,47 +40,81 @@ export default function DiscoverEvents() {
       if (mode === "solo") {
         await api.post("/api/teams/create", { 
           eventId: selectedEvent.id, 
-          teamName: `Solo-${Math.floor(Math.random()*1000)}`,
+          teamName: data.teamName,
           isSolo: true 
         })
+        window.location.reload()
       } else if (mode === "create") {
         await api.post("/api/teams/create", { 
           eventId: selectedEvent.id, 
           teamName: data.teamName 
         })
+        window.location.reload()
       } else if (mode === "join") {
         await api.post("/api/teams/join", { 
           inviteCode: data.inviteCode 
         })
+        window.location.reload()
       } else if (mode === "find") {
-        // Will call AI match
-        await api.post("/api/teams/find-ai-team", { eventId: selectedEvent.id })
+        // Join AI matchmaking pool — don't reload, return status to modal
+        try {
+          const res = await api.post("/api/teams/find-ai-team", { eventId: selectedEvent.id })
+          return res.data // { status: 'SEARCHING', poolDeadline }
+        } catch (findErr) {
+          // If already in pool, treat it as success (show searching state)
+          if (findErr.response?.data?.error?.includes('already in the matchmaking pool')) {
+            const statusRes = await api.get(`/api/teams/ai-match/status/${selectedEvent.id}`)
+            return statusRes.data
+          }
+          throw findErr
+        }
       }
-      
-      // Refresh page to show in My Events
-      window.location.reload()
     } catch (err) {
       alert(err.response?.data?.error || err.message)
     }
   }
 
-  const filteredEvents = events.filter(e => 
-    e.name.toLowerCase().includes(search.toLowerCase()) ||
-    (e.tagline && e.tagline.toLowerCase().includes(search.toLowerCase()))
-  )
+  const filteredEvents = events.filter(e => {
+    const isJoined = registeredEventIds.includes(e.id);
+    const isJoinable = e.status !== "LIVE" && e.status !== "ENDED" && !isJoined;
+    
+    // Hide events if we are only showing open registrations and the event isn't joinable
+    if (!showAll && !isJoinable) return false;
+
+    const matchesSearch = e.name.toLowerCase().includes(search.toLowerCase()) ||
+                          (e.tagline && e.tagline.toLowerCase().includes(search.toLowerCase()));
+                          
+    return matchesSearch;
+  })
 
   if (loading) return <div className="py-12 text-center text-slate-400">Loading events...</div>
 
   return (
     <div className="space-y-6">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-        <Input 
-          className="pl-10 h-12 bg-[#1a1a2e]/50 border-white/10" 
-          placeholder="Search hackathons by name, theme, or tech..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex flex-col md:flex-row gap-4 items-center">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+          <Input 
+            className="pl-10 h-12 bg-[#1a1a2e]/50 border-white/10" 
+            placeholder="Search hackathons by name, theme, or tech..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center p-1 bg-[#1a1a2e]/50 border border-white/10 rounded-lg w-full md:w-auto">
+          <button
+            onClick={() => setShowAll(false)}
+            className={`flex-1 md:flex-none px-4 py-2 text-sm font-medium rounded-md transition-colors ${!showAll ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"}`}
+          >
+            Open for Registration
+          </button>
+          <button
+            onClick={() => setShowAll(true)}
+            className={`flex-1 md:flex-none px-4 py-2 text-sm font-medium rounded-md transition-colors ${showAll ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"}`}
+          >
+            All Events
+          </button>
+        </div>
       </div>
 
       {filteredEvents.length === 0 ? (
@@ -88,14 +123,17 @@ export default function DiscoverEvents() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map(event => (
-            <EventCard 
-              key={event.id} 
-              event={event} 
-              actionLabel="Join Event"
-              onJoin={setSelectedEvent} 
-            />
-          ))}
+          {filteredEvents.map(event => {
+            const isJoined = registeredEventIds.includes(event.id);
+            return (
+              <EventCard 
+                key={event.id} 
+                event={event} 
+                actionLabel={isJoined ? "Enter Event Room" : "Join Event"}
+                onJoin={isJoined ? () => window.location.href=`/event/${event.id}` : setSelectedEvent} 
+              />
+            )
+          })}
         </div>
       )}
 
