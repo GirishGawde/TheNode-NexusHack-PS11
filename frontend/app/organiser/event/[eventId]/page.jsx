@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { supabase } from "@/lib/supabase"
 import Navbar from "@/components/shared/Navbar"
 import ParticipantTable from "@/components/organiser/ParticipantTable"
@@ -18,9 +18,13 @@ export default function OrganiserEventControl({ params }) {
   const [stats, setStats] = useState({ registered: 0, teams: 0, submitted: 0, judged: 0 })
   const [activeTab, setActiveTab] = useState("overview")
   const [loading, setLoading] = useState(true)
+  const [now, setNow] = useState(new Date())
 
   useEffect(() => {
     fetchData()
+
+    // Tick clock every second to power countdown + auto-live
+    const clockTimer = setInterval(() => setNow(new Date()), 1000)
 
     // Realtime stats
     const channel = supabase.channel(`event-stats-${eventId}`)
@@ -29,7 +33,7 @@ export default function OrganiserEventControl({ params }) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'submissions', filter: `event_id=eq.${eventId}` }, fetchData)
       .subscribe()
 
-    return () => supabase.removeChannel(channel)
+    return () => { supabase.removeChannel(channel); clearInterval(clockTimer) }
   }, [eventId])
 
   const fetchData = async () => {
@@ -77,6 +81,14 @@ export default function OrganiserEventControl({ params }) {
     }
   }
 
+  // Auto-go LIVE when start_date arrives and event is still PUBLISHED
+  useEffect(() => {
+    if (!event) return
+    if (event.status === 'PUBLISHED' && event.start_date && new Date(event.start_date) <= now) {
+      handleStatusChange('LIVE')
+    }
+  }, [now, event])
+
   if (loading) return <div className="min-h-screen bg-[#0A0A0F] text-white flex items-center justify-center">Loading control panel...</div>
   if (!event) return <div className="min-h-screen bg-[#0A0A0F] text-white flex items-center justify-center">Event not found.</div>
 
@@ -101,11 +113,41 @@ export default function OrganiserEventControl({ params }) {
           </div>
           
           <div className="flex items-center gap-3">
-            {event.status === 'PUBLISHED' && (
-              <Button onClick={() => handleStatusChange('LIVE')} className="bg-green-600 hover:bg-green-700 gap-2">
-                <Play className="h-4 w-4" /> Start Event
-              </Button>
-            )}
+            {event.status === 'PUBLISHED' && (() => {
+              const startTime = event.start_date ? new Date(event.start_date) : null
+              const canStart = !startTime || now >= startTime
+
+              // Countdown string
+              let countdown = ''
+              if (!canStart && startTime) {
+                const diff = Math.max(0, startTime - now)
+                const h = Math.floor(diff / 3600000)
+                const m = Math.floor((diff % 3600000) / 60000)
+                const s = Math.floor((diff % 60000) / 1000)
+                countdown = h > 0 ? `${h}h ${m}m ${s}s` : m > 0 ? `${m}m ${s}s` : `${s}s`
+              }
+
+              return (
+                <div className="flex flex-col items-end gap-1">
+                  <Button
+                    onClick={() => canStart && handleStatusChange('LIVE')}
+                    disabled={!canStart}
+                    title={canStart ? 'Start the event now' : `Event starts in ${countdown}`}
+                    className={`gap-2 ${
+                      canStart
+                        ? 'bg-green-600 hover:bg-green-700 cursor-pointer'
+                        : 'bg-slate-700 text-slate-400 cursor-not-allowed opacity-60'
+                    }`}
+                  >
+                    <Play className="h-4 w-4" />
+                    {canStart ? 'Start Event' : 'Start Event'}
+                  </Button>
+                  {!canStart && countdown && (
+                    <span className="text-xs text-slate-500">Starts in {countdown}</span>
+                  )}
+                </div>
+              )
+            })()}
             {event.status === 'LIVE' && (
               <Button onClick={() => handleStatusChange('ENDED')} className="bg-red-600 hover:bg-red-700 gap-2">
                 <Square className="h-4 w-4" /> End Event
