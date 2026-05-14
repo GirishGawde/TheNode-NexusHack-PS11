@@ -6,6 +6,7 @@ import Navbar from "@/components/shared/Navbar"
 import EventCard from "@/components/dashboard/participant/EventCard"
 import DiscoverEvents from "@/components/dashboard/participant/DiscoverEvents"
 import HistoryTab from "@/components/dashboard/participant/HistoryTab"
+import AiMatchBanner from "@/components/dashboard/participant/AiMatchBanner"
 import { useRouter } from "next/navigation"
 
 export default function ParticipantDashboard() {
@@ -13,6 +14,7 @@ export default function ParticipantDashboard() {
   const [activeTab, setActiveTab] = useState("my-events")
   const [user, setUser] = useState(null)
   const [myEvents, setMyEvents] = useState([])
+  const [poolEvents, setPoolEvents] = useState([]) // events user is in AI pool for
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -42,6 +44,22 @@ export default function ParticipantDashboard() {
         .filter(event => event.status !== "ENDED")
         
       setMyEvents(activeEvents)
+
+      // Also fetch any events the user is in the AI matchmaking pool for
+      const { data: poolData } = await supabase
+        .from('ai_matchmaking_pool')
+        .select('event_id, status, events(id, name)')
+        .eq('user_id', session.user.id)
+        .in('status', ['SEARCHING', 'RECOMMENDATIONS_READY'])
+
+      if (poolData) {
+        // Only include pool events not already in myEvents
+        const myEventIds = new Set(activeEvents.map(e => e.id))
+        const poolOnlyEvents = poolData
+          .map(p => p.events)
+          .filter(e => e && !myEventIds.has(e.id))
+        setPoolEvents(poolOnlyEvents)
+      }
     } catch (err) {
       console.error(err)
     } finally {
@@ -104,6 +122,16 @@ export default function ParticipantDashboard() {
           <div>
             {activeTab === "my-events" && (
               <div className="space-y-6">
+                {/* AI Matchmaking banners — for events in pool (not yet registered) */}
+                {poolEvents.map(event => (
+                  <AiMatchBanner key={`ai-pool-${event.id}`} eventId={event.id} eventName={event.name} />
+                ))}
+
+                {/* AI Matchmaking banners — for already-registered events (in case they re-searched) */}
+                {myEvents.map(event => (
+                  <AiMatchBanner key={`ai-${event.id}`} eventId={event.id} eventName={event.name} />
+                ))}
+
                 {myEvents.length === 0 ? (
                   <div className="py-12 text-center border border-dashed border-white/10 rounded-xl bg-white/5">
                     <p className="text-slate-400 mb-4">You haven't joined any active events yet.</p>
@@ -129,7 +157,7 @@ export default function ParticipantDashboard() {
               </div>
             )}
             
-            {activeTab === "discover" && <DiscoverEvents />}
+            {activeTab === "discover" && <DiscoverEvents registeredEventIds={myEvents.map(e => e.id)} />}
             
             {activeTab === "history" && <HistoryTab />}
           </div>

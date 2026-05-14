@@ -9,11 +9,15 @@ export default function JoinEventModal({ event, onClose, onJoin }) {
   const [teamName, setTeamName] = useState("")
   const [inviteCode, setInviteCode] = useState("")
   const [loading, setLoading] = useState(false)
+  const [aiResult, setAiResult] = useState(null) // { poolDeadline }
 
   const handleAction = async (e) => {
     e.preventDefault()
     setLoading(true)
-    await onJoin(mode, { teamName, inviteCode })
+    const result = await onJoin(mode, { teamName, inviteCode })
+    if (mode === 'find' && result?.status === 'SEARCHING') {
+      setAiResult(result)
+    }
     setLoading(false)
   }
 
@@ -94,13 +98,13 @@ export default function JoinEventModal({ event, onClose, onJoin }) {
           </div>
         ) : (
           <form onSubmit={handleAction} className="p-6 pt-0 space-y-4">
-            {mode === 'create' && (
+            {(mode === 'create' || mode === 'solo') && (
               <div className="space-y-2">
-                <Label>Team Name</Label>
+                <Label>{mode === 'solo' ? 'Solo Team Name' : 'Team Name'}</Label>
                 <Input 
                   value={teamName} 
                   onChange={(e) => setTeamName(e.target.value)} 
-                  placeholder="e.g. Code Ninjas"
+                  placeholder={mode === 'solo' ? "e.g. Lone Wolf" : "e.g. Code Ninjas"}
                   required 
                 />
               </div>
@@ -125,19 +129,54 @@ export default function JoinEventModal({ event, onClose, onJoin }) {
               </p>
             )}
 
-            {mode === 'find' && (
-              <p className="text-slate-300 text-sm">
-                We will analyze your profile skills and find the best teams that are looking for your expertise.
-              </p>
+            {mode === 'find' && !aiResult && (
+              <div className="space-y-3">
+                <div className="p-4 bg-violet-500/10 border border-violet-500/30 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Sparkles className="h-5 w-5 text-violet-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-white text-sm font-medium mb-1">How AI Matching Works</p>
+                      <ul className="text-slate-400 text-xs space-y-1">
+                        <li>• Your skills and college are used to find compatible teammates</li>
+                        <li>• AI will notify you when quality recommendations are ready</li>
+                        <li>• You choose who to invite — no one is auto-added</li>
+                        <li>• First to accept fills the team (others auto-declined)</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-slate-400 text-xs text-center">You can cancel the search anytime from your dashboard</p>
+              </div>
+            )}
+
+            {mode === 'find' && aiResult && (
+              <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg text-center">
+                <div className="text-green-400 text-2xl mb-2">🤖</div>
+                <p className="text-white font-medium mb-1">AI is searching for your team!</p>
+                <p className="text-slate-400 text-xs">Check your dashboard for updates. We'll notify you when recommendations are ready.</p>
+              </div>
             )}
 
             <div className="flex gap-3 pt-2 mt-4">
-              <Button type="button" variant="ghost" onClick={() => setMode(null)} className="flex-1">
-                Back
-              </Button>
-              <Button type="submit" className="flex-1" disabled={loading}>
-                {loading ? "Processing..." : "Confirm"}
-              </Button>
+              {aiResult ? (
+                // After AI search started — show a single 'Go to My Events' button
+                <Button type="button" className="flex-1 bg-violet-600 hover:bg-violet-700" onClick={onClose}>
+                  Go to My Events →
+                </Button>
+              ) : (
+                <>
+                  <Button type="button" variant="ghost" onClick={() => setMode(null)} className="flex-1">
+                    Back
+                  </Button>
+                  <Button type="submit" className="flex-1" disabled={loading}>
+                    {loading
+                      ? "Processing..."
+                      : mode === 'find'
+                        ? "🤖 Start AI Search"
+                        : "Confirm"}
+                  </Button>
+                </>
+              )}
             </div>
           </form>
         )}

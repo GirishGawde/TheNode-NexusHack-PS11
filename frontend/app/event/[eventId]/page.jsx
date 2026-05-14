@@ -43,7 +43,21 @@ export default function EventRoom({ params }) {
       if (session) {
         const { data: regData } = await supabase
           .from("event_registrations")
-          .select("team_id, teams(*)")
+          .select(`
+            team_id, 
+            teams(
+              *,
+              team_members(
+                *,
+                users(
+                  id,
+                  name,
+                  email,
+                  profile_picture_url
+                )
+              )
+            )
+          `)
           .eq("event_id", eventId)
           .eq("user_id", session.user.id)
           .single()
@@ -126,10 +140,10 @@ export default function EventRoom({ params }) {
 
         {/* Tab Content */}
         <div className="min-h-[500px]">
-          {activeTab === "general" && <GeneralInfo event={event} team={team} />}
+          {activeTab === "general" && <GeneralInfo event={event} team={team} user={user} />}
           {activeTab === "announcements" && <AnnouncementFeed eventId={event.id} />}
           {activeTab === "chat" && (
-            team ? <TeamChat teamId={team.id} user={user} /> : 
+            team ? <TeamChat team={team} user={user} /> : 
             <div className="text-center py-20 text-slate-400 border border-dashed border-white/10 rounded-xl">
               You need to be in a team to access chat.
             </div>
