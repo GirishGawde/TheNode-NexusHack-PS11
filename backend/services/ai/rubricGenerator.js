@@ -65,6 +65,13 @@ Return ONLY a valid JSON object matching this schema, with NO markdown formattin
       });
     }
 
+    // Normalize: rename suggestedWeight → weight for frontend compatibility
+    parsed.criteria = parsed.criteria.map(c => ({
+      name: c.name,
+      weight: Math.round(c.suggestedWeight ?? c.weight ?? 20),
+      description: c.description,
+    }));
+
     return parsed;
   } catch (err) {
     console.error('[AI] suggestRubric error:', err);

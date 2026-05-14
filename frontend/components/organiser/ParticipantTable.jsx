@@ -19,7 +19,7 @@ export default function ParticipantTable({ eventId }) {
       const { data, error } = await supabase
         .from("event_registrations")
         .select(`
-          created_at,
+          registered_at,
           users(name, email, college, role),
           teams(name, invite_code)
         `)
@@ -95,7 +95,7 @@ export default function ParticipantTable({ eventId }) {
                       )}
                     </td>
                     <td className="px-6 py-4 text-slate-400">
-                      {new Date(p.created_at).toLocaleDateString()}
+                      {new Date(p.registered_at).toLocaleDateString()}
                     </td>
                   </tr>
                 ))

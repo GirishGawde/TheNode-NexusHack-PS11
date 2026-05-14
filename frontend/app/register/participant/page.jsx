@@ -140,7 +140,7 @@ export default function ParticipantRegister() {
       }
       
       if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
-        const sigData = sigCanvas.current.getTrimmedCanvas().toDataURL("image/png")
+        const sigData = sigCanvas.current.getCanvas().toDataURL("image/png")
         // Convert base64 to Blob
         const res = await fetch(sigData)
         const blob = await res.blob()

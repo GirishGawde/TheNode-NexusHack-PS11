@@ -23,7 +23,7 @@ export default function LeaderboardControl({ eventId }) {
         .select(`
           id,
           rank,
-          total_score,
+          raw_score,
           is_published,
           teams(id, name)
         `)
@@ -145,7 +145,7 @@ export default function LeaderboardControl({ eventId }) {
                       {entry.teams.name}
                     </td>
                     <td className="px-6 py-4 font-mono font-bold text-cyan-400 text-right text-lg">
-                      {entry.total_score.toFixed(1)}
+                      {entry.raw_score.toFixed(1)}
                     </td>
                   </tr>
                 ))}

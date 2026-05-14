@@ -41,8 +41,9 @@ export default function JudgingPanel({ eventId }) {
   const handleGenerateInvite = async () => {
     setInviting(true)
     try {
-      // In a real app, we'd store a token in DB. For now, generate a secure link
-      const token = btoa(JSON.stringify({ eventId, timestamp: Date.now() }))
+      // Use URL-safe base64 so +, /, = don't break the URL path
+      const rawToken = btoa(JSON.stringify({ eventId, timestamp: Date.now() }))
+      const token = rawToken.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
       const link = `${window.location.origin}/judge/${token}`
       setInviteLink(link)
       
