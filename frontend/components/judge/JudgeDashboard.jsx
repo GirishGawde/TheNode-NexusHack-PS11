@@ -7,6 +7,7 @@ import {
   MessageSquare, Loader2, LogOut, Search, ChevronRight, FileText,
   Users, Lightbulb, Zap, Sun, Moon, Pencil
 } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 const api = (path) => `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000"}${path}`
 
@@ -116,7 +117,7 @@ export default function JudgeDashboard({ eventId, judgeId, judgeName, onLogout, 
       })
       setPlagiarism(data)
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to check plagiarism.')
+      toast.error(err.response?.data?.error || 'Failed to check plagiarism.')
     } finally {
       setCheckingPlagiarism(false)
     }
@@ -143,7 +144,7 @@ export default function JudgeDashboard({ eventId, judgeId, judgeName, onLogout, 
         setTimeout(() => setSuccessMsg(''), 3000)
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'AI scoring failed. Please try again.')
+      toast.error(err.response?.data?.error || 'AI scoring failed. Please try again.')
     } finally {
       setAiScoring(false)
     }
@@ -157,7 +158,7 @@ export default function JudgeDashboard({ eventId, judgeId, judgeName, onLogout, 
       setSuccessMsg(`Score saved for ${selectedTeam.name}!`)
       setTimeout(() => setSuccessMsg(""), 3000)
       setSelectedTeam(null)
-    } catch (err) { alert(err.response?.data?.error || "Failed to submit.") }
+    } catch (err) { toast.error(err.response?.data?.error || "Failed to submit.") }
     finally { setSubmitting(false) }
   }
 
@@ -174,7 +175,7 @@ export default function JudgeDashboard({ eventId, judgeId, judgeName, onLogout, 
       setTimeout(() => setSuccessMsg(''), 3000)
       setEditProfile(false)
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to update profile.')
+      toast.error(err.response?.data?.error || 'Failed to update profile.')
     } finally {
       setSavingProfile(false)
     }

@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import SignatureCanvas from "react-signature-canvas"
+import { useTheme } from "@/lib/ThemeProvider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,6 +14,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 export default function ParticipantRegister() {
   const router = useRouter()
   const sigCanvas = useRef(null)
+  const { theme } = useTheme()
   
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -164,7 +166,6 @@ export default function ParticipantRegister() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-900/20 via-[#0A0A0F] to-cyan-900/20 z-0 pointer-events-none" />
       
       <Card className="z-10 w-full max-w-2xl my-8">
         <CardHeader>
@@ -279,7 +280,7 @@ export default function ParticipantRegister() {
                   <div className="border border-white/10 rounded-md bg-white/5 overflow-hidden">
                     <SignatureCanvas 
                       ref={sigCanvas}
-                      penColor="white"
+                      penColor={theme === "light" ? "black" : "white"}
                       canvasProps={{ className: "w-full h-40" }}
                     />
                   </div>

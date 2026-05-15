@@ -11,6 +11,7 @@ import LeaderboardControl from "@/components/organiser/LeaderboardControl"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Play, Square, Users, Trophy, Bell, LineChart, ShieldAlert } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 export default function OrganiserEventControl({ params }) {
   const { eventId } = params
@@ -76,8 +77,9 @@ export default function OrganiserEventControl({ params }) {
         
       if (error) throw error
       setEvent({ ...event, status: newStatus })
+      toast.success(`Event status changed to ${newStatus}`)
     } catch (err) {
-      alert("Error changing status: " + err.message)
+      toast.error("Error changing status: " + err.message)
     }
   }
 

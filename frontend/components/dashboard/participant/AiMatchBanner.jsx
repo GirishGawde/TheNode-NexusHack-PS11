@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import api from "@/lib/axios"
 import { Sparkles, X, CheckCircle, XCircle, Loader2, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { toast } from "react-hot-toast"
 
 export default function AiMatchBanner({ eventId, eventName }) {
   const router = useRouter()
@@ -38,7 +39,7 @@ export default function AiMatchBanner({ eventId, eventName }) {
       clearInterval(intervalRef.current)
       window.location.reload()
     } catch (err) {
-      alert(err.response?.data?.error || err.message)
+      toast.error(err.response?.data?.error || err.message)
     } finally {
       setCancelling(false)
     }

@@ -5,6 +5,7 @@ import JoinEventModal from "./JoinEventModal"
 import api from "@/lib/axios"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { toast } from "react-hot-toast"
 
 export default function DiscoverEvents({ registeredEventIds = [] }) {
   const [events, setEvents] = useState([])
@@ -70,7 +71,7 @@ export default function DiscoverEvents({ registeredEventIds = [] }) {
         }
       }
     } catch (err) {
-      alert(err.response?.data?.error || err.message)
+      toast.error(err.response?.data?.error || err.message)
     }
   }
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Users, Copy, CheckCircle2, ShieldAlert } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 export default function JudgingPanel({ eventId }) {
   const [judges, setJudges] = useState([])
@@ -54,11 +55,11 @@ export default function JudgingPanel({ eventId }) {
           email: inviteEmail,
           link
         })
-        alert(`Invite sent to ${inviteEmail}`)
+        toast.success(`Invite sent to ${inviteEmail}`)
         setInviteEmail("")
       }
     } catch (err) {
-      alert("Failed to generate invite: " + err.message)
+      toast.error("Failed to generate invite: " + err.message)
     } finally {
       setInviting(false)
     }
@@ -66,7 +67,7 @@ export default function JudgingPanel({ eventId }) {
 
   const copyLink = () => {
     navigator.clipboard.writeText(inviteLink)
-    alert("Link copied to clipboard!")
+    toast.success("Link copied to clipboard!")
   }
 
   return (

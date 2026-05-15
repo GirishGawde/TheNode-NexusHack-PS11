@@ -102,11 +102,11 @@ export default function EventRoom({ params }) {
               </div>
             )}
             <div>
-              <div className="inline-block px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold mb-2">
+              <div className="inline-block px-3 py-1 bg-[rgba(255,255,255,0.1)] backdrop-blur-md rounded-full text-xs font-semibold mb-2 text-[#ffffff]">
                 {event.status}
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{event.name}</h1>
-              <p className="text-lg text-slate-300 line-clamp-2 max-w-3xl">{event.tagline}</p>
+              <h1 className="text-3xl md:text-5xl font-bold text-[#ffffff] mb-2">{event.name}</h1>
+              <p className="text-lg text-[#cbd5e1] line-clamp-2 max-w-3xl">{event.tagline}</p>
             </div>
           </div>
         </div>

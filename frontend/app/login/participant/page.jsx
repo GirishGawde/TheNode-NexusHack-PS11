@@ -58,7 +58,6 @@ export default function ParticipantLogin() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-900/20 via-[#0A0A0F] to-cyan-900/20 z-0 pointer-events-none" />
       
       <Card className="z-10 w-full max-w-md">
         <CardHeader>

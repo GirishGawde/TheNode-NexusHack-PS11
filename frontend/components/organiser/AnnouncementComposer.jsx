@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Send, AlertTriangle, Info, AlertOctagon } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 export default function AnnouncementComposer({ eventId }) {
   const [announcements, setAnnouncements] = useState([])
@@ -56,9 +57,9 @@ export default function AnnouncementComposer({ eventId }) {
       
       setFormData({ title: "", body: "", urgency: "INFO" })
       fetchAnnouncements()
-      alert("Announcement sent successfully!")
+      toast.success("Announcement sent successfully!")
     } catch (err) {
-      alert("Failed to send announcement: " + err.message)
+      toast.error("Failed to send announcement: " + err.message)
     } finally {
       setSending(false)
     }

@@ -8,6 +8,7 @@ import { expireDeadlinedPoolEntries } from './lib/aiMatch.js';
 import eventRoutes from './routes/events.js';
 import judgingRoutes from './routes/judging.js';
 import aiRoutes from './routes/ai.js';
+import submissionRoutes from './routes/submissions.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/judging', judgingRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/submissions', submissionRoutes);
 
 app.listen(process.env.PORT || 5000, () => {
   console.log(`NexusHack backend running on port ${process.env.PORT || 5000}`);

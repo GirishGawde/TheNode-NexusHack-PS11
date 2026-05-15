@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { X, Sparkles, Plus, Trash2 } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 export default function CreateEventModal({ onClose, onCreated }) {
   const [step, setStep] = useState(1)
@@ -90,7 +91,7 @@ export default function CreateEventModal({ onClose, onCreated }) {
       }
     } catch (err) {
       console.error(err)
-      alert("Failed to get AI suggestions")
+      toast.error("Failed to get AI suggestions")
     } finally {
       setAiLoading(false)
     }
@@ -115,7 +116,7 @@ export default function CreateEventModal({ onClose, onCreated }) {
     // Validate rubric weights
     const totalWeight = rubric.reduce((sum, c) => sum + c.weight, 0)
     if (totalWeight !== 100) {
-      alert(`Rubric weights must sum to 100. Current sum: ${totalWeight}`)
+      toast.error(`Rubric weights must sum to 100. Current sum: ${totalWeight}`)
       return
     }
 
@@ -163,22 +164,23 @@ export default function CreateEventModal({ onClose, onCreated }) {
       }
 
       onCreated()
+      toast.success("Event created successfully!")
     } catch (err) {
       console.error(err)
-      alert("Error creating event: " + err.message)
+      toast.error("Error creating event: " + err.message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-[#0A0A0F] border border-white/10 rounded-xl w-full max-w-4xl shadow-2xl relative my-8">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-[#0A0A0F] border border-white/10 rounded-xl w-full max-w-4xl shadow-2xl relative flex flex-col max-h-[90vh]">
         <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white z-10">
           <X className="h-6 w-6" />
         </button>
         
-        <div className="p-6 border-b border-white/10 flex items-center gap-4 sticky top-0 bg-[#0A0A0F]/90 backdrop-blur-md z-0">
+        <div className="p-6 border-b border-white/10 flex items-center gap-4 shrink-0">
           <h2 className="text-2xl font-bold text-white">Create New Event</h2>
           <div className="flex items-center gap-2 text-sm font-medium text-slate-400">
             <span className={step >= 1 ? "text-cyan-400" : ""}>1. Details</span>
@@ -189,7 +191,7 @@ export default function CreateEventModal({ onClose, onCreated }) {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto">
           {step === 1 && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import api from "@/lib/axios"
 import { Check, X, Inbox } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 export default function InvitesInbox() {
   const router = useRouter()
@@ -68,8 +69,9 @@ export default function InvitesInbox() {
       }
       // Remove from list
       setInvites(invites.filter(inv => inv.id !== inviteId))
+      toast.success(action === 'accept' ? 'Invite accepted!' : 'Invite declined.')
     } catch (err) {
-      alert(err.response?.data?.error || err.message)
+      toast.error(err.response?.data?.error || err.message)
     } finally {
       setProcessingId(null)
     }

@@ -1,17 +1,177 @@
 @import "tailwindcss";
 
+/* ─── DARK MODE (default) ── black + white text + orange accents ──────── */
 :root {
-  --background: #0A0A0F;
-  --foreground: #FFFFFF;
+  --bg:           #000000;
+  --bg-card:      #0d0d0d;
+  --bg-card2:     #141414;
+  --bg-input:     #111111;
+  --border:       #2a2a2a;
+  --border-hover: #ff6600;
+
+  --text-primary:   #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted:     #888888;
+  --text-on-accent: #000000;
+
+  --accent:         #ff6600;
+  --accent-hover:   #e65c00;
+  --accent2:        #ff6600;
+
+  --nav-bg:  #000000;
+  --overlay: rgba(0,0,0,0.8);
+  --shadow:  none;
 }
 
+/* ─── LIGHT MODE ──────────────── white + black text + orange & blue ────── */
+html.light {
+  --bg:           #ffffff;
+  --bg-card:      #f9f9f9;
+  --bg-card2:     #f0f0f0;
+  --bg-input:     #f5f5f5;
+  --border:       #e0e0e0;
+  --border-hover: #ff6600;
+
+  --text-primary:   #000000;
+  --text-secondary: #000000;
+  --text-muted:     #555555;
+  --text-on-accent: #ffffff;
+
+  --accent:         #ff6600;
+  --accent-hover:   #e65c00;
+  --accent2:        #0055cc;
+
+  --nav-bg:  #ffffff;
+  --overlay: rgba(0,0,0,0.6);
+  --shadow:  none;
+}
+
+/* ─── BASE ──────────────────────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
 }
 
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-inter), sans-serif;
+  transition: background 0.25s, color 0.25s;
 }
+
+::selection { background: var(--accent); color: var(--text-on-accent); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL OVERRIDES — force every hardcoded Tailwind color to use CSS vars.
+   This makes ALL pages/components consistent without editing each file.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Page backgrounds */
+[class*="bg-[#0A0A0F]"],
+[class*="bg-[#0a0a0f]"],
+[class*="bg-[#11111A]"],
+[class*="bg-[#111]"],
+[class*="bg-[#0A0A0F]"] { background: var(--bg) !important; }
+
+/* Dark background shades → use card bg */
+[class*="bg-[#0d0d0d]"],
+[class*="bg-[#1a1a1a]"],
+[class*="bg-[#111111]"],
+[class*="bg-[#1a1a2e]"],
+[class*="bg-[#222]"],
+[class*="bg-[#0d0d0d]"] { background: var(--bg-card) !important; }
+
+/* Transparent white backgrounds (cards, modals) */
+[class*="bg-white/5"],
+[class*="bg-white/10"] { background: var(--bg-card) !important; }
+
+[class*="bg-white/20"] { background: var(--bg-card2) !important; }
+
+/* Black overlays & nav */
+[class*="bg-black/50"],
+[class*="bg-black/60"],
+[class*="bg-black/70"],
+[class*="bg-black/80"],
+[class*="bg-black/85"],
+[class*="bg-black/90"] { background: var(--overlay) !important; }
+
+/* White text → primary text */
+.text-white  { color: var(--text-primary) !important; }
+
+/* Slate text → muted/secondary */
+.text-slate-300,
+.text-slate-400,
+.text-slate-500,
+.text-gray-400,
+.text-gray-500 { color: var(--text-muted) !important; }
+
+.text-slate-200,
+.text-gray-300 { color: var(--text-secondary) !important; }
+
+/* Violet / cyan / yellow → orange accent */
+.text-violet-400,
+.text-violet-300,
+.text-cyan-400,
+.text-cyan-300,
+.text-yellow-400,
+[class*="text-violet-"],
+[class*="text-cyan-"],
+[class*="text-yellow-"] { color: var(--accent) !important; }
+
+/* Violet / cyan backgrounds → accent bg */
+[class*="bg-violet-600"],
+[class*="bg-violet-700"],
+[class*="bg-cyan-600"],
+[class*="bg-cyan-700"] { background: var(--accent) !important; color: var(--text-on-accent) !important; }
+
+[class*="bg-violet-500/20"],
+[class*="bg-violet-600/30"],
+[class*="bg-cyan-500/20"],
+[class*="bg-cyan-500/10"] { background: rgba(255,102,0,0.12) !important; }
+
+/* Borders */
+[class*="border-white/10"],
+[class*="border-white/5"],
+[class*="border-white/20"] { border-color: var(--border) !important; }
+
+[class*="border-violet-"],
+[class*="border-cyan-"] { border-color: var(--accent) !important; }
+
+/* Gradients on text (logo, hero headings) */
+[class*="bg-gradient-to-r"][class*="from-violet-"][class*="to-cyan-"],
+[class*="bg-gradient-to-br"][class*="from-violet-"][class*="to-cyan-"] {
+  background: var(--accent) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* Remove the purple/teal gradient background overlay from page wrappers */
+[class*="bg-gradient-to-br"][class*="from-violet-900"] {
+  background: none !important;
+}
+
+/* Underline indicator on active tab */
+[class*="bg-violet-400"],
+[class*="bg-cyan-400"] { background: var(--accent) !important; }
+
+/* Input / select overrides */
+select {
+  background: var(--bg-input) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Signature canvas border */
+[class*="border-white/10"][class*="bg-white/5"] {
+  background: var(--bg-input) !important;
+  border-color: var(--border) !important;
+}
+
+/* Focus rings */
+[class*="focus-visible:ring-violet-"],
+[class*="focus:ring-violet-"] { --tw-ring-color: var(--accent) !important; }

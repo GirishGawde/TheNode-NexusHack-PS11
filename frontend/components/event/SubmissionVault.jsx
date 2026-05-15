@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2, Lock, UploadCloud, AlertCircle } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 export default function SubmissionVault({ event, team }) {
   const [submission, setSubmission] = useState({
@@ -24,6 +25,7 @@ export default function SubmissionVault({ event, team }) {
   const [submitting, setSubmitting] = useState(false)
   const [status, setStatus] = useState("DRAFT")
   const [healthScore, setHealthScore] = useState(0)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
   
   const isLeader = team?.leader_id && team?.leader_id !== null // simplified check
 
@@ -97,24 +99,24 @@ export default function SubmissionVault({ event, team }) {
       }, { onConflict: 'team_id, event_id' })
       
       if (error) throw error
-      alert("Draft saved successfully!")
+      toast.success("Draft saved successfully!")
     } catch (err) {
-      alert("Failed to save draft: " + err.message)
+      toast.error("Failed to save draft: " + err.message)
     } finally {
       setSaving(false)
     }
   }
 
-  const handleSubmit = async () => {
+  const handlePreSubmit = () => {
     if (healthScore < 100) {
-      alert("Please fill all mandatory fields before submitting.")
+      toast.error("Please fill all mandatory fields before submitting.")
       return
     }
-    
-    if (!confirm("Are you sure you want to submit? You can still edit until the deadline.")) {
-      return
-    }
-    
+    setShowConfirmModal(true)
+  }
+
+  const handleConfirmSubmit = async () => {
+    setShowConfirmModal(false)
     setSubmitting(true)
     try {
       // First save draft
@@ -130,9 +132,9 @@ export default function SubmissionVault({ event, team }) {
       })
       
       setStatus("SUBMITTED")
-      alert("Project submitted successfully!")
+      toast.success("Project submitted successfully!")
     } catch (err) {
-      alert("Failed to submit: " + (err.response?.data?.error || err.message))
+      toast.error("Failed to submit: " + (err.response?.data?.error || err.message))
     } finally {
       setSubmitting(false)
     }
@@ -272,12 +274,39 @@ export default function SubmissionVault({ event, team }) {
           </Button>
           
           <Button 
-            onClick={handleSubmit} 
+            onClick={handlePreSubmit} 
             disabled={saving || submitting || healthScore < 100} 
             className={`${healthScore === 100 ? 'bg-green-600 hover:bg-green-700' : 'bg-violet-600'}`}
           >
             {submitting ? "Submitting..." : status === "SUBMITTED" ? "Update Submission" : "Final Submit"}
           </Button>
+        </div>
+      )}
+
+      {/* Custom Confirm Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#11111A] border border-white/10 rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4 text-violet-400">
+              <AlertCircle className="w-6 h-6" />
+              <h3 className="text-xl font-bold text-white">Confirm Submission</h3>
+            </div>
+            <p className="text-slate-300 mb-6">
+              Are you sure you want to {status === "SUBMITTED" ? "update your submission" : "submit"}? You can still edit until the deadline.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button variant="ghost" onClick={() => setShowConfirmModal(false)} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button 
+                className="bg-violet-600 hover:bg-violet-700 text-white" 
+                onClick={handleConfirmSubmit} 
+                disabled={submitting}
+              >
+                {submitting ? "Processing..." : "Confirm"}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

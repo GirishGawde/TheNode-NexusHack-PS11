@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import api from "@/lib/axios"
+import { toast } from "react-hot-toast"
 
 export default function GeneralInfo({ event, team, user }) {
   const router = useRouter()
@@ -29,7 +30,7 @@ export default function GeneralInfo({ event, team, user }) {
       // Redirect to dashboard using window.location to force a fresh data fetch
       window.location.href = "/dashboard/participant";
     } catch (err) {
-      alert(err.response?.data?.error || err.message);
+      toast.error(err.response?.data?.error || err.message);
       setLeaveLoading(false);
       setShowLeaveModal(false);
     }
@@ -37,7 +38,7 @@ export default function GeneralInfo({ event, team, user }) {
 
   const generateQR = async () => {
     // In a real implementation this would call the API to generate a QR pass
-    alert("QR Pass generation would trigger here")
+    toast.success("QR Pass generation would trigger here")
   }
 
   const sendInvite = async () => {

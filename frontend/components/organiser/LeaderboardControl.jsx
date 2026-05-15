@@ -4,6 +4,7 @@ import api from "@/lib/axios"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Trophy, RefreshCw, Eye, EyeOff } from "lucide-react"
+import { toast } from "react-hot-toast"
 
 export default function LeaderboardControl({ eventId }) {
   const [leaderboard, setLeaderboard] = useState([])
@@ -49,9 +50,9 @@ export default function LeaderboardControl({ eventId }) {
       // In a real app, this calls an API that aggregates scores and updates the leaderboard table
       await api.post("/api/judging/calculate-leaderboard", { eventId })
       await fetchLeaderboard()
-      alert("Leaderboard calculated successfully!")
+      toast.success("Leaderboard calculated successfully!")
     } catch (err) {
-      alert("Error calculating leaderboard: " + (err.response?.data?.error || err.message))
+      toast.error("Error calculating leaderboard: " + (err.response?.data?.error || err.message))
     } finally {
       setCalculating(false)
     }
@@ -71,7 +72,7 @@ export default function LeaderboardControl({ eventId }) {
       // Update local state
       setLeaderboard(leaderboard.map(l => ({ ...l, is_published: newStatus })))
     } catch (err) {
-      alert("Failed to change publish status: " + err.message)
+      toast.error("Failed to change publish status: " + err.message)
     }
   }
 
