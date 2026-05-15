@@ -5,6 +5,9 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import teamRoutes from './routes/teams.js';
 import { expireDeadlinedPoolEntries } from './lib/aiMatch.js';
+import eventRoutes from './routes/events.js';
+import judgingRoutes from './routes/judging.js';
+import aiRoutes from './routes/ai.js';
 
 dotenv.config();
 
@@ -19,13 +22,9 @@ app.use(express.json());
 app.use(rateLimit({ windowMs: 60000, max: 100 }));
 
 app.use('/api/teams', teamRoutes);
-// Placeholder for other routes
-// app.use('/api/submissions', submissionRoutes);
-// app.use('/api/judging', judgingRoutes);
-// app.use('/api/announcements', announcementRoutes);
-// app.use('/api/analytics', analyticsRoutes);
-// app.use('/api/certificates', certificateRoutes);
-// app.use('/api/ai', aiRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/judging', judgingRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.listen(process.env.PORT || 5000, () => {
   console.log(`NexusHack backend running on port ${process.env.PORT || 5000}`);

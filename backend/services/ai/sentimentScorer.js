@@ -19,14 +19,14 @@ async function callGemini(prompt) {
 
 export async function analyzeJudgeFeedback(feedbackText, criteria) {
   const fallback = {
-    scores: {},
+    scores: [],
     overallSentiment: 'Neutral',
     confidence: 0
   };
   
   if (criteria && Array.isArray(criteria)) {
     criteria.forEach(c => {
-      fallback.scores[c.name] = { score: 5, reasoning: 'Fallback applied due to error.' };
+      fallback.scores.push({ criteriaId: c.id, score: 5, reasoning: 'Fallback applied due to error.' });
     });
   }
 
@@ -34,7 +34,7 @@ export async function analyzeJudgeFeedback(feedbackText, criteria) {
     const prompt = `
 You are an expert hackathon judge sentiment analyzer.
 Analyze the following feedback text given by a judge and score the submission based on the provided criteria.
-Scores must be between 1 and 10.
+Scores must be between 1 and 10. You should deduce scores from the feedback provided. If the feedback doesn't explicitly mention a criteria, provide a neutral score (e.g. 5) or your best deduction.
 
 Judge Feedback:
 "${feedbackText}"
@@ -44,12 +44,13 @@ ${JSON.stringify(criteria, null, 2)}
 
 Return ONLY a valid JSON object matching this exact schema, with no markdown formatting or extra text:
 {
-  "scores": {
-    "Criteria Name": {
+  "scores": [
+    {
+      "criteriaId": "string (the id from the provided Criteria)",
       "score": number,
       "reasoning": "string"
     }
-  },
+  ],
   "overallSentiment": "Positive" | "Neutral" | "Negative",
   "confidence": number (0 to 100)
 }
