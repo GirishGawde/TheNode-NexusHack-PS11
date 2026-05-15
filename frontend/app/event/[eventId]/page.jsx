@@ -53,7 +53,12 @@ export default function EventRoom({ params }) {
                   id,
                   name,
                   email,
-                  profile_picture_url
+                  profile_picture_url,
+                  college,
+                  year_of_study,
+                  github_username,
+                  linkedin_url,
+                  skills
                 )
               )
             )

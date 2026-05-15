@@ -3,12 +3,16 @@ import { supabase } from '../../config/supabase.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Create bot only if token is available
+// Create bot only if token is available and not a placeholder
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
-const bot = botToken ? new TelegramBot(botToken, { polling: true }) : null;
+const isValidToken = botToken && botToken !== 'your_telegram_bot_token_here' && botToken !== 'your_token_from_botfather' && botToken !== 'your_token';
+const bot = isValidToken ? new TelegramBot(botToken, { polling: true }) : null;
 
 if (bot) {
-  bot.on('polling_error', (err) => console.error('[Bot] polling error:', err));
+  console.log('[Bot] Telegram bot started successfully.');
+  bot.on('polling_error', (err) => console.error('[Bot] polling error:', err.message || err));
+} else {
+  console.log('[Bot] Telegram bot disabled: Invalid or missing TELEGRAM_BOT_TOKEN');
 }
 
 // HELPER — get user + active event by chat ID

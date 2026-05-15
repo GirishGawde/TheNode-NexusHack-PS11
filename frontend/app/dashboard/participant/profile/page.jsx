@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "react-hot-toast"
+import { Copy } from "lucide-react"
 
 export default function EditProfile() {
   const router = useRouter()
@@ -197,6 +199,19 @@ export default function EditProfile() {
               <div className="space-y-2">
                 <Label>Email (Read Only)</Label>
                 <Input value={user?.email || ""} disabled className="opacity-50" />
+              </div>
+              <div className="space-y-2 md:col-span-2 mb-4 p-4 rounded-lg bg-violet-500/10 border border-violet-500/20">
+                <Label className="flex justify-between items-center text-violet-300">
+                  <span>User ID (UUID - Required for Telegram Bot)</span>
+                  <button 
+                    type="button" 
+                    onClick={() => { navigator.clipboard.writeText(user?.id); toast.success("UUID copied to clipboard!"); }}
+                    className="flex items-center gap-1 text-xs text-violet-400 hover:text-white transition-colors bg-white/5 px-2 py-1 rounded"
+                  >
+                    <Copy className="h-3 w-3" /> Copy ID
+                  </button>
+                </Label>
+                <Input value={user?.id || ""} disabled className="opacity-70 font-mono text-sm mt-2 bg-black/40 border-white/10 text-slate-300" />
               </div>
               <div className="space-y-2">
                 <Label>Mobile</Label>

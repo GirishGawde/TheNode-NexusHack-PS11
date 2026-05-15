@@ -159,7 +159,18 @@ router.post('/find-ai-team', authMiddleware, async (req, res) => {
       .eq('event_id', eventId)
       .eq('user_id', userId)
       .single();
-    if (existingPool) return res.status(400).json({ success: false, error: 'You are already in the matchmaking pool for this event', status: existingPool.status });
+      
+    if (existingPool) {
+      if (existingPool.status === 'CANCELLED' || existingPool.status === 'EXPIRED') {
+        const poolDeadline = calculatePoolDeadline(event.registration_deadline);
+        if (!poolDeadline) return res.status(400).json({ success: false, error: 'Registration deadline has passed' });
+        
+        await supabase.from('ai_matchmaking_pool').update({ status: 'SEARCHING', pool_deadline: poolDeadline }).eq('id', existingPool.id);
+        runAiMatchForEvent(eventId).catch(err => console.error('[find-ai-team] AI trigger error:', err));
+        return res.json({ success: true, status: 'SEARCHING', poolDeadline });
+      }
+      return res.status(400).json({ success: false, error: 'You are already in the matchmaking pool for this event', status: existingPool.status });
+    }
 
     // Calculate pool deadline
     const poolDeadline = calculatePoolDeadline(event.registration_deadline);

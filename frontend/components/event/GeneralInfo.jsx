@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Calendar, MapPin, Trophy, Users, CheckCircle2, QrCode, Mail, LogOut, Trash2, AlertCircle } from "lucide-react"
+import { Calendar, MapPin, Trophy, Users, CheckCircle2, QrCode, Mail, LogOut, Trash2, AlertCircle, X, GraduationCap, Code2, Link as LinkIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
@@ -18,6 +18,7 @@ export default function GeneralInfo({ event, team, user }) {
   
   const [leaveLoading, setLeaveLoading] = useState(false)
   const [showLeaveModal, setShowLeaveModal] = useState(false)
+  const [selectedMember, setSelectedMember] = useState(null)
 
   const handleLeaveClick = () => {
     setShowLeaveModal(true);
@@ -169,7 +170,7 @@ export default function GeneralInfo({ event, team, user }) {
                   <h4 className="text-sm font-medium text-slate-300">Team Members</h4>
                   <div className="space-y-2">
                     {team.team_members.map(member => (
-                      <div key={member.id} className="flex items-center gap-3">
+                      <div key={member.id} className="flex items-center gap-3 p-2 -mx-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors" onClick={() => setSelectedMember(member.users)}>
                         {member.users?.profile_picture_url ? (
                           <img src={member.users.profile_picture_url} alt="Profile" className="w-8 h-8 rounded-full border border-white/10 object-cover" />
                         ) : (
@@ -257,6 +258,67 @@ export default function GeneralInfo({ event, team, user }) {
               >
                 {leaveLoading ? "Processing..." : "Confirm"}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Modal */}
+      {selectedMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#11111A] border border-white/10 rounded-xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onClick={() => setSelectedMember(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
+            <div className="flex flex-col items-center text-center mt-2">
+              {selectedMember.profile_picture_url ? (
+                <img src={selectedMember.profile_picture_url} alt="Profile" className="w-20 h-20 rounded-full border-2 border-violet-500 object-cover mb-4" />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-violet-600 flex items-center justify-center text-3xl font-bold border-2 border-[#11111A] mb-4 text-white">
+                  {selectedMember.name?.charAt(0)?.toUpperCase() || '?'}
+                </div>
+              )}
+              <h3 className="text-xl font-bold text-white mb-1">{selectedMember.name || 'Unknown User'}</h3>
+              <p className="text-sm text-slate-400 mb-4">{selectedMember.email}</p>
+              
+              <div className="w-full space-y-3 mt-2">
+                {selectedMember.college && (
+                  <div className="flex items-center gap-3 text-sm text-slate-300 bg-white/5 p-2.5 rounded-lg border border-white/10">
+                    <GraduationCap className="h-4 w-4 text-violet-400 shrink-0" />
+                    <span className="truncate text-left">{selectedMember.college} {selectedMember.year_of_study ? `(Year ${selectedMember.year_of_study})` : ''}</span>
+                  </div>
+                )}
+
+                {selectedMember.skills && selectedMember.skills.length > 0 && (
+                  <div className="text-left bg-white/5 p-3 rounded-lg border border-white/10">
+                    <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-violet-400 uppercase tracking-wider">
+                      <Code2 className="h-4 w-4" /> Skills
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedMember.skills.map((skill, i) => (
+                        <span key={i} className="text-xs px-2 py-1 bg-violet-500/20 text-violet-300 rounded border border-violet-500/30">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {(selectedMember.github_username || selectedMember.linkedin_url) && (
+                  <div className="flex items-center justify-center gap-4 pt-4 border-t border-white/10">
+                    {selectedMember.github_username && (
+                      <a href={`https://github.com/${selectedMember.github_username}`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 flex items-center gap-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white text-xs font-medium" title="GitHub">
+                        <Code2 className="h-4 w-4" /> GitHub
+                      </a>
+                    )}
+                    {selectedMember.linkedin_url && (
+                      <a href={selectedMember.linkedin_url.startsWith('http') ? selectedMember.linkedin_url : `https://${selectedMember.linkedin_url}`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 flex items-center gap-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white text-xs font-medium" title="LinkedIn">
+                        <LinkIcon className="h-4 w-4" /> LinkedIn
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

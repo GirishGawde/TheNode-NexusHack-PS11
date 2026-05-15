@@ -15,7 +15,7 @@ export default function JoinEventModal({ event, onClose, onJoin }) {
     e.preventDefault()
     setLoading(true)
     const result = await onJoin(mode, { teamName, inviteCode })
-    if (mode === 'find' && result?.status === 'SEARCHING') {
+    if (mode === 'find' && (result?.status === 'SEARCHING' || result?.status === 'RECOMMENDATIONS_READY')) {
       setAiResult(result)
     }
     setLoading(false)

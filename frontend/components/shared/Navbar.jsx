@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Menu, X, LogOut, User as UserIcon, Pencil, Loader2, CheckCircle2 } from "lucide-react"
+import { Menu, X, LogOut, User as UserIcon, Pencil, Loader2, CheckCircle2, ChevronLeft } from "lucide-react"
 import { toast } from "react-hot-toast"
 
 export default function Navbar({ role }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [user, setUser] = useState(null)
   const [isOpen, setIsOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -77,8 +78,17 @@ export default function Navbar({ role }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
 
-            {/* Logo */}
-            <div className="flex items-center">
+            {/* Logo and Back Button */}
+            <div className="flex items-center gap-2">
+              {pathname !== `/dashboard/${role}` && pathname !== '/' && (
+                <button 
+                  onClick={() => router.back()} 
+                  className="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                  title="Go back"
+                >
+                  <ChevronLeft className="h-5 w-5" style={{ color: "var(--text-secondary)" }} />
+                </button>
+              )}
               <Link href={`/dashboard/${role}`} className="flex-shrink-0">
                 <span className="text-xl font-bold" style={{ color: "var(--accent)", letterSpacing: "-0.02em" }}>
                   Nexus<span style={{ color: "var(--text-secondary)" }}>Hack</span>

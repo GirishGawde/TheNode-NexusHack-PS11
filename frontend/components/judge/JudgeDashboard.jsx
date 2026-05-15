@@ -4,14 +4,16 @@ import axios from "axios"
 import { supabase } from "@/lib/supabase"
 import {
   Trophy, Code, ExternalLink, CheckCircle2, Clock, X, Star,
-  MessageSquare, Loader2, LogOut, Search, ChevronRight, FileText,
+  MessageSquare, Loader2, LogOut, Search, ChevronRight, ChevronLeft, FileText,
   Users, Lightbulb, Zap, Sun, Moon, Pencil
 } from "lucide-react"
 import { toast } from "react-hot-toast"
+import { useRouter } from "next/navigation"
 
 const api = (path) => `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000"}${path}`
 
 export default function JudgeDashboard({ eventId, judgeId, judgeName, onLogout, theme, toggleTheme }) {
+  const router = useRouter()
   const [event, setEvent] = useState(null)
   const [teams, setTeams] = useState([])
   const [rubric, setRubric] = useState([])
@@ -205,6 +207,13 @@ export default function JudgeDashboard({ eventId, judgeId, judgeName, onLogout, 
       {/* Header */}
       <header className={`sticky top-0 z-20 border-b ${border} ${dark ? "bg-black/95" : "bg-white/95"} backdrop-blur-sm px-6 py-3 flex items-center justify-between`}>
         <div className="flex items-center gap-3">
+          <button 
+            onClick={() => router.back()} 
+            className={`p-1.5 rounded-lg border transition-all ${dark ? "border-gray-700 bg-[#111] text-gray-400 hover:text-white" : "border-gray-200 bg-gray-50 text-gray-500 hover:text-black"}`}
+            title="Go back"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
           <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs border ${dark ? "border-gray-700 bg-[#111] text-white" : "border-gray-200 bg-gray-100 text-black"}`}>N</div>
           <div>
             <span className={`font-bold text-sm ${text}`}>{event?.name || "NexusHack"}</span>

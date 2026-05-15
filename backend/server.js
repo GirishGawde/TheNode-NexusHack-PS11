@@ -9,6 +9,7 @@ import eventRoutes from './routes/events.js';
 import judgingRoutes from './routes/judging.js';
 import aiRoutes from './routes/ai.js';
 import submissionRoutes from './routes/submissions.js';
+import './services/bot/telegramBot.js';
 
 dotenv.config();
 
